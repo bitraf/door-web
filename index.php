@@ -1,5 +1,11 @@
-<? header('Content-Type: text/html; charset=UTF-8'); ?>
 <?
+header('Content-Type: text/html; charset=UTF-8');
+
+// Require that HTTPS be used for the next year, to prevent SSL-stripping MITM 
+// attacks on the unencrypted door.bitraf.no redirect domain.
+header('Strict-Transport-Security: max-age=31536000');
+
+// Set to true when authentication is complete.
 $ok = false;
 
 if (array_key_exists('action', $_POST) && $_POST['action'] == 'unlock')
