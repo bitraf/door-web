@@ -2,17 +2,10 @@
 <?
 require_once('secret.php');
 $ok = false;
-$authorized = false;
 
 if (array_key_exists('action', $_POST) && $_POST['action'] == 'unlock')
 {
-  if ($authorized)
-  {
-    $ok = true;
-
-    @pg_query_params("INSERT INTO auth_log (host, account, realm) VALUES ($1, $2, 'door')", array($_SERVER['REMOTE_ADDR'], $account));
-  }
-  else if (array_key_exists('pin', $_POST))
+  if (array_key_exists('pin', $_POST))
   {
     pg_connect('dbname=p2k12 user=p2k12');
 
@@ -28,8 +21,7 @@ if (array_key_exists('action', $_POST) && $_POST['action'] == 'unlock')
 
       while ($row = pg_fetch_assoc($res))
       {
-        if ($row['data'] == $_POST['pin']
-          || crypt($_POST['pin'], $row['data']) == $row['data'])
+        if (crypt($_POST['pin'], $row['data']) === $row['data'])
         {
           $account = $row['account'];
 
@@ -39,25 +31,17 @@ if (array_key_exists('action', $_POST) && $_POST['action'] == 'unlock')
 
       if (isset($account))
       {
-        $access_granted = true;
-        $res = @pg_query_params("SELECT flag, price FROM active_members WHERE account = $1", array($account));
+        $res = @pg_query_params("SELECT 1 FROM active_members WHERE account = $1 AND (price > 0 OR flag != '')", array($account));
 
-        while ($row = pg_fetch_assoc($res))
-        {
-          if (trim($row['flag']) == "" && $row['price'] <= 0)
-          {
-            $access_granted = false;
-            $ok = false;
-            $error = 'Error: Only registered and paying members can use door';
-            break;
-          }
-        }
-
-        if ($access_granted)
-        {
-          @pg_query_params("INSERT INTO auth_log (host, account, realm) VALUES ($1, $2, 'door')", array($_SERVER['REMOTE_ADDR'], $account));
+        if (pg_num_rows($res) == 1)
           $ok = true;
-        }
+        else
+          $error = 'Error: Only registered and paying members can use door';
+      }
+
+      if ($ok)
+      {
+        @pg_query_params("INSERT INTO auth_log (host, account, realm) VALUES ($1, $2, 'door')", array($_SERVER['REMOTE_ADDR'], $account));
       }
       else
       {
@@ -75,7 +59,7 @@ if (array_key_exists('action', $_POST) && $_POST['action'] == 'unlock')
     $error = "Unlocked " . strftime('%H:%M:%S');
 
     @pg_query_params('INSERT INTO checkins (account) VALUES ($1)', array($account));
-    //NOTICE: The line below should be run before the line above, but this is a temporary solution.
+
     $output = system("/usr/local/bin/bitraf-door-open.sh > /var/www/t 2>&1 &");
     echo "<p>Welcome to Bitraf.</p>";
   }
@@ -87,9 +71,9 @@ if (array_key_exists('action', $_POST) && $_POST['action'] == 'unlock')
     <title>Bitraf Door</title>
     <meta name="viewport" content="width=device-width, initial=scale=1, maximum-scale=1, user-scalable=no">
     <style>
-      body { background: #eee; margin: 0; padding: 5%; font-family: sans-serif; text-align: center; }
-      p { margin: 0 0 20px; }
-      input { margin-bottom: 5%; }
+      body { background: #fff; margin: 0; padding: 10px; font-family: sans-serif; text-align: center; }
+      p { margin: 0 0 10px; }
+      input { margin-bottom: 10px; }
     </style>
   </head>
   <body>
@@ -101,12 +85,8 @@ if (array_key_exists('action', $_POST) && $_POST['action'] == 'unlock')
     <? endif ?>
     <form method='post' action='<?=htmlentities($_SERVER['REQUEST_URI'], ENT_QUOTES, 'UTF-8')?>'>
       <input type='hidden' name='action' value='unlock'>
-      <? if ($authorized): ?>
-      <p>Press Unlock to immediately unlock the door.</p>
-      <? else: ?>
       <p>Password:</p>
-      <input id='pin' autofocus="autofocus" type='password' name='pin' style='width: 80%'><br>
-      <? endif ?>
+      <input id='pin' autofocus='autofocus' type='password' name='pin' style='width: 80%; max-width: 300px'><br>
       <input type='submit' value='Unlock'>
     </form>
   <? endif ?>
