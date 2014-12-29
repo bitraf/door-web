@@ -9,50 +9,65 @@ header('Strict-Transport-Security: max-age=31536000');
 // authorized to unlock the door.
 unset($account);
 
-// Set to true when authentication is complete.
+// Set to true when authentication and authorization is complete.
 $ok = false;
+
+// Set to true if authentication is disallowed due to rate limiting.
+$rate_limited = false;
 
 if (isset($_POST['action'])
     && isset($_POST['pin'])
+    && isset($_POST['user'])
     && $_POST['action'] == 'unlock')
 {
   pg_connect('dbname=p2k12 user=p2k12');
 
+  // Per-IP rate failure limit.
   $res = pg_query_params("SELECT COUNT(*) FROM auth_log WHERE host = $1 AND account IS NULL AND date > NOW() - INTERVAL '6 hour'", array($_SERVER['REMOTE_ADDR']));
-
   $fail_count = pg_fetch_result($res, 0, 0);
 
   if ($fail_count < 3)
   {
-    $res = @pg_query("SELECT a.account, a.data FROM auth a LEFT JOIN (SELECT account, MAX(date) AS date, COUNT(account) AS logins FROM auth_log al WHERE al.date > current_date - interval '2 weeks' GROUP BY account) al ON al.account = a.account WHERE a.realm = 'door' ORDER BY al.logins DESC NULLS LAST");
+    // Retrieve password hash and eligivility to unlock door remotely.
+    $res = @pg_query_params(<<<SQL
+SELECT auth.data,
+       (active_members.price > 0 OR active_members.flag != '') AS can_unlock
+  FROM auth
+  JOIN active_members USING (account)
+  JOIN accounts ON accounts.id = account
+  WHERE accounts.name = $1
+    AND auth.realm = 'door'
+SQL
+        , array($_POST['user']));
 
-    while ($row = pg_fetch_assoc($res))
+    $row = pg_fetch_assoc($res);
+
+    if ($row)
     {
-      if (crypt($_POST['pin'], $row['data']) === $row['data'])
+      $account = trim($_POST['user']);
+
+      if ($row['can_unlock'] != 't')
       {
-        $account = $row['account'];
-
-        break;
+        $error = 'User not authorized to unlock door';
       }
-    }
-
-    if (isset($account))
-    {
-      $res = @pg_query_params("SELECT 1 FROM active_members WHERE account = $1 AND (price > 0 OR flag != '')", array($account));
-
-      if (pg_num_rows($res) == 1)
-        $ok = true;
+      else if (crypt($_POST['pin'], $row['data']) !== $row['data'])
+      {
+        $error = 'Incorrect password';
+      }
       else
-        $error = 'Error: Only registered and paying members can use door';
+      {
+        $ok = true;
+      }
     }
     else
     {
-      $error = 'Error: Incorrect password';
+      $error = 'User ' . htmlentities($_POST['user'], ENT_QUOTES, 'utf-8') . ' not found';
     }
   }
   else
   {
     $error = "Error: Too many login failures";
+    $rate_limited = true;
   }
 }
 
@@ -63,7 +78,7 @@ if ($ok)
 
   system("/usr/local/bin/bitraf-door-open.sh &");
 }
-else
+else if ($rate_limited)
 {
   @pg_query_params("INSERT INTO auth_log (host, realm) VALUES ($1, 'door')", array($_SERVER['REMOTE_ADDR']));
 }
@@ -72,7 +87,7 @@ else
 <html>
   <head>
     <title>Bitraf Door</title>
-    <meta name="viewport" content="width=device-width, initial=scale=1, maximum-scale=1, user-scalable=no">
+    <meta name='viewport' content='width=device-width, initial=scale=1, maximum-scale=1'>
     <style>
       body { background: #fff; margin: 0; padding: 10px; font-family: sans-serif; text-align: center; }
       p { margin: 0 0 10px; }
@@ -81,16 +96,18 @@ else
   </head>
   <body>
   <? if ($ok): ?>
-    <p>Door is open.  Welcome to Bitraf (<?=strftime('%H:%M:%S')?>).</p>
+    <p style='font-weight: bold'>Door is open.  Welcome to Bitraf (<?=strftime('%H:%M:%S')?>).</p>
   <? else: ?>
     <? if (isset($error)): ?>
       <p><?=$error?></p>
     <? endif ?>
-    <form method='post' action='<?=htmlentities($_SERVER['REQUEST_URI'], ENT_QUOTES, 'UTF-8')?>'>
-      <input type='hidden' name='action' value='unlock'>
+    <form method=post action='<?=htmlentities($_SERVER['REQUEST_URI'], ENT_QUOTES, 'UTF-8')?>'>
+      <input type=hidden name=action value=unlock>
+      <p>Username:</p>
+      <input id=user autofocus=autofocus type=text name=user style='width: 80%; max-width: 300px'><br>
       <p>Password:</p>
-      <input id='pin' autofocus='autofocus' type='password' name='pin' style='width: 80%; max-width: 300px'><br>
-      <input type='submit' value='Unlock'>
+      <input id=pin type=password name=pin style='width: 80%; max-width: 300px'><br>
+      <input type=submit value=Unlock>
     </form>
   <? endif ?>
   </body>
