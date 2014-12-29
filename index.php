@@ -23,14 +23,14 @@ if (isset($_POST['action'])
   pg_connect('dbname=p2k12 user=p2k12');
 
   // Per-IP rate failure limit.
-  $res = pg_query_params("SELECT COUNT(*) FROM auth_log WHERE host = $1 AND account IS NULL AND date > NOW() - INTERVAL '6 hour'", array($_SERVER['REMOTE_ADDR']));
+  $res = pg_query_params("SELECT COUNT(*) FROM auth_log WHERE host = $1 AND account IS NULL AND date > NOW() - INTERVAL '1 hour'", array($_SERVER['REMOTE_ADDR']));
   $fail_count = pg_fetch_result($res, 0, 0);
 
-  if ($fail_count < 3)
+  if ($fail_count < 10)
   {
     // Retrieve password hash and eligivility to unlock door remotely.
     $res = @pg_query_params(<<<SQL
-SELECT auth.data,
+SELECT account, auth.data,
        (active_members.price > 0 OR active_members.flag != '') AS can_unlock
   FROM auth
   JOIN active_members USING (account)
@@ -44,7 +44,7 @@ SQL
 
     if ($row)
     {
-      $account = trim($_POST['user']);
+      $account = $row['account'];
 
       if ($row['can_unlock'] != 't')
       {
@@ -75,8 +75,6 @@ if ($ok)
 {
   @pg_query_params("INSERT INTO auth_log (host, account, realm) VALUES ($1, $2, 'door')", array($_SERVER['REMOTE_ADDR'], $account));
   @pg_query_params('INSERT INTO checkins (account) VALUES ($1)', array($account));
-
-  system("/usr/local/bin/bitraf-door-open.sh &");
 }
 else if ($rate_limited)
 {
@@ -112,3 +110,10 @@ else if ($rate_limited)
   <? endif ?>
   </body>
 </html>
+<?
+// We flush the output buffers and perform the unlock operation after the page 
+// has rendered to prevent its slowness from stalling the web browser.
+flush();
+
+if ($ok)
+  system("/usr/local/bin/bitraf-door-open.sh &");
