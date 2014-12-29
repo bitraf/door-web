@@ -1,6 +1,5 @@
 <? header('Content-Type: text/html; charset=UTF-8'); ?>
 <?
-require_once('secret.php');
 $ok = false;
 
 if (array_key_exists('action', $_POST) && $_POST['action'] == 'unlock')
