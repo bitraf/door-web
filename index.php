@@ -22,13 +22,13 @@ if (isset($_POST['action'])
 {
   pg_connect('dbname=p2k12 user=p2k12');
 
-  // Per-IP rate failure limit.
+  // Per-IP failure rate limit.
   $res = pg_query_params("SELECT COUNT(*) FROM auth_log WHERE host = $1 AND account IS NULL AND date > NOW() - INTERVAL '1 hour'", array($_SERVER['REMOTE_ADDR']));
   $fail_count = pg_fetch_result($res, 0, 0);
 
   if ($fail_count < 10)
   {
-    // Retrieve password hash and eligivility to unlock door remotely.
+    // Retrieve password hash and eligibility to unlock door remotely.
     $res = @pg_query_params(<<<SQL
 SELECT account, auth.data,
        (active_members.price > 0 OR active_members.flag != '') AS can_unlock
@@ -66,7 +66,7 @@ SQL
   }
   else
   {
-    $error = "Error: Too many login failures";
+    $error = "Too many login failures";
     $rate_limited = true;
   }
 }
@@ -97,7 +97,7 @@ else if ($rate_limited)
     <p style='font-weight: bold'>Door is open.  Welcome to Bitraf (<?=strftime('%H:%M:%S')?>).</p>
   <? else: ?>
     <? if (isset($error)): ?>
-      <p><?=$error?></p>
+      <p>Error: <?=$error?></p>
     <? endif ?>
     <form method=post action='<?=htmlentities($_SERVER['REQUEST_URI'], ENT_QUOTES, 'UTF-8')?>'>
       <input type=hidden name=action value=unlock>
@@ -116,4 +116,4 @@ else if ($rate_limited)
 flush();
 
 if ($ok)
-  system("/usr/local/bin/bitraf-door-open.sh &");
+  system("/usr/local/bin/bitraf-door-open.sh");
