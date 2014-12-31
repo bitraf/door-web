@@ -20,7 +20,8 @@ if (isset($_POST['action'])
     && isset($_POST['user'])
     && $_POST['action'] == 'unlock')
 {
-  pg_connect('dbname=p2k12 user=p2k12');
+  require_once('db-connect-string.php');
+  pg_connect($db_connect_string);
 
   // Per-IP failure rate limit.
   $res = pg_query_params("SELECT COUNT(*) FROM auth_log WHERE host = $1 AND account IS NULL AND date > NOW() - INTERVAL '1 hour'", array($_SERVER['REMOTE_ADDR']));
