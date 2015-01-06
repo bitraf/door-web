@@ -36,8 +36,9 @@ SELECT account, auth.data,
   FROM auth
   JOIN active_members USING (account)
   JOIN accounts ON accounts.id = account
-  WHERE accounts.name = $1
+  WHERE (accounts.name = $1 OR active_members.full_name = $1)
     AND auth.realm = 'door'
+  ORDER BY can_unlock DESC NULLS LAST
 SQL
         , array($_POST['user']));
 
@@ -102,7 +103,7 @@ else if ($rate_limited)
     <? endif ?>
     <form method=post action='<?=htmlentities($_SERVER['REQUEST_URI'], ENT_QUOTES, 'UTF-8')?>'>
       <input type=hidden name=action value=unlock>
-      <p>Username:</p>
+      <p>Username or full name:</p>
       <input id=user autofocus=autofocus type=text name=user style='width: 80%; max-width: 300px'><br>
       <p>Password:</p>
       <input id=pin type=password name=pin style='width: 80%; max-width: 300px'><br>
