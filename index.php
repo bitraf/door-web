@@ -36,7 +36,7 @@ SELECT account, auth.data,
   FROM auth
   JOIN active_members USING (account)
   JOIN accounts ON accounts.id = account
-  WHERE (accounts.name = $1 OR active_members.full_name = $1)
+  WHERE (LOWER(accounts.name) = LOWER($1) OR LOWER(active_members.full_name) = LOWER($1))
     AND auth.realm = 'door'
   ORDER BY can_unlock DESC NULLS LAST
 SQL
