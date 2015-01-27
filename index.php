@@ -88,11 +88,7 @@ else if ($rate_limited)
   <head>
     <title>Bitraf Door</title>
     <meta name='viewport' content='width=device-width, initial=scale=1, maximum-scale=1'>
-    <style>
-      body { background: #fff; margin: 0; padding: 10px; font-family: sans-serif; text-align: center; }
-      p { margin: 0 0 10px; }
-      input { margin-bottom: 10px; }
-    </style>
+    <link href="/style/main.css" rel="stylesheet" type="text/css">
   </head>
   <body>
   <? if ($ok): ?>
