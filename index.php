@@ -1,4 +1,4 @@
-<?
+<?php
 header('Content-Type: text/html; charset=UTF-8');
 
 // Require that HTTPS be used for the next year, to prevent SSL-stripping MITM 
@@ -71,7 +71,7 @@ SQL
     $error = "Too many login failures";
     $rate_limited = true;
   }
-}
+  }
 
 if ($ok)
 {
@@ -87,25 +87,66 @@ else if ($rate_limited)
 <html>
   <head>
     <title>Bitraf Door</title>
-    <meta name='viewport' content='width=device-width, initial=scale=1, maximum-scale=1'>
-    <link href="/style/main.css" rel="stylesheet" type="text/css">
+    <meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1'>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
+
+    <link href="style/main.css" rel="stylesheet" type="text/css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
   </head>
   <body>
+  <div class='container'>
+    <img src='http://www.bitraf.no/images/bitraf.png' class='image-rounded' />
+  </div>
   <? if ($ok): ?>
-    <p style='font-weight: bold'>Door is open.  Welcome to Bitraf (<?=strftime('%H:%M:%S')?>).</p>
+    <!-- <p style='font-weight: bold'>Door is open.  Welcome to Bitraf (<?=strftime('%H:%M:%S')?>).</p> -->
+	<div class='alert alert-success'>
+		<h4>Door is open!</h4>. Welcome to Bitraf! 
+		<p>(Current time: <?=strftime('%H:%M:%S')?>)</p>
+		<!-- TODO: add SQL and PHP for counting <div>You are the 48th member here today.</div> -->
+	</div>
   <? else: ?>
     <? if (isset($error)): ?>
-      <p>Error: <?=$error?></p>
+	  <div class='alert alert-danger'><h4>Error!</h4><?=$error?></div>
     <? endif ?>
+	
+  	<div class='well'>
+	  <h4>How do I get access?</h4>
+	  <div class='container collapsed'>
+	  <p>
+	  You need to enter the Bitraf premises, and log into the console on the P2K12 computer. Type <code>passwd door</code>, and create your personal password.
+	  </p>
+	  </div>
+	</div>
+	
     <form method=post action='<?=htmlentities($_SERVER['REQUEST_URI'], ENT_QUOTES, 'UTF-8')?>'>
       <input type=hidden name=action value=unlock>
-      <p>Username or full name:</p>
-      <input id=user autofocus=autofocus type=text name=user style='width: 80%; max-width: 300px'><br>
-      <p>Password:</p>
-      <input id=pin type=password name=pin style='width: 80%; max-width: 300px'><br>
-      <input type=submit value=Unlock>
+	  
+	  <h4>Authentication</h4>  
+	  <div class='form-group'>	  
+	  <div class='input-group input-group-lg'>
+		<span class='input-group-addon' id='usernameaddon'><span class='glyphicon glyphicon-user'></span></span>
+		<input id="user" name="user" autofocus="autofocus" type="text" class='form-control' placeholder='Username or Fullname'>
+	   </div>
+	  </div>
+	  
+	  <div class='form-group'>	  
+	  <div class='input-group input-group-lg'>
+		<span class='input-group-addon' id='passwordaddon'><span class='glyphicon glyphicon-pencil'></span></span>
+        <input id=pin type=password name=pin class='form-control' placeholder='Password'>
+	  </div>
+	</div>
+	
+	<div class='container' style='margin-top: 30px;'>
+    <button type='submit' class='btn btn-lg btn-success' style='padding: 20px 50px 20px 50px;' value='Unlock'>
+		<span class='glyphicon glyphicon-lock' style='margin-right: 0px;'></span>
+		Unlock
+	</button>
+	</div>
+	
     </form>
   <? endif ?>
+   
   </body>
 </html>
 <?
