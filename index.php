@@ -123,22 +123,26 @@ else if ($rate_limited)
       <input type=hidden name=action value=unlock>
 	  
 	  <h4>Authentication</h4>  
+	  <div class='form-group'>	  
 	  <div class='input-group input-group-lg'>
 		<span class='input-group-addon' id='usernameaddon'><span class='glyphicon glyphicon-user'></span></span>
 		<input id="user" name="user" autofocus="autofocus" type="text" class='form-control' placeholder='Username or Fullname'>
 	   </div>
-	   
+	  </div>
+	  
+	  <div class='form-group'>	  
 	  <div class='input-group input-group-lg'>
 		<span class='input-group-addon' id='passwordaddon'><span class='glyphicon glyphicon-pencil'></span></span>
         <input id=pin type=password name=pin class='form-control' placeholder='Password'>
 	  </div>
-  
-  <div class='container' style='margin-top: 30px;'>
+	</div>
+	
+	<div class='container' style='margin-top: 30px;'>
     <button type='submit' class='btn btn-lg btn-success' style='padding: 20px 50px 20px 50px;' value='Unlock'>
 		<span class='glyphicon glyphicon-lock' style='margin-right: 0px;'></span>
 		Unlock
 	</button>
-  </div>
+	</div>
 	
     </form>
   <? endif ?>
