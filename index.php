@@ -1,4 +1,4 @@
-<?php
+<?
 header('Content-Type: text/html; charset=UTF-8');
 
 // Require that HTTPS be used for the next year, to prevent SSL-stripping MITM 
