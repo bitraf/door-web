@@ -111,16 +111,16 @@ else if ($rate_limited)
 	  <div class='alert alert-danger'><h4>Error!</h4><?=$error?></div>
     <? endif ?>
 	
-  	<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+  	<div class="panel-group" id="accordion" role="tablist">
 	  <div class="panel panel-default">
 		<div class="panel-heading" role="tab" id="headingOne">
 		  <h4 class="panel-title">
-			<a data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+			<a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
 			  <h4><span class='glyphicon glyphicon-question-sign' style='margin-right: 15px;'></span>How do I get access?</h4>
 			</a>
 		  </h4>
 		</div>
-		<div id="collapseOne" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
+		<div id="collapseOne" class="panel-collapse collapse" role="tabpanel">
 		  <div class="panel-body">
 			You need to enter the Bitraf premises, and log into the console on the P2K12 computer. Type <code>passwd door</code>, and create your personal password.
 		  </div>
