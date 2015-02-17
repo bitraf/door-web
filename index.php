@@ -93,15 +93,16 @@ else if ($rate_limited)
 
     <link href="style/main.css" rel="stylesheet" type="text/css">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+	<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
   </head>
   <body>
-  <div class='container'>
-    <img src='http://www.bitraf.no/images/bitraf.png' class='image-rounded' />
+  <div class='container' style='margin-bottom: 20px;'>
+    <img src='http://www.bitraf.no/images/bitraf.png' class='image-round'>
   </div>
   <? if ($ok): ?>
     <!-- <p style='font-weight: bold'>Door is open.  Welcome to Bitraf (<?=strftime('%H:%M:%S')?>).</p> -->
 	<div class='alert alert-success'>
-		<h4>Door is open!</h4>. Welcome to Bitraf! 
+		<h4>Door is open!</h4>Welcome to Bitraf! 
 		<p>(Current time: <?=strftime('%H:%M:%S')?>)</p>
 		<!-- TODO: add SQL and PHP for counting <div>You are the 48th member here today.</div> -->
 	</div>
@@ -110,14 +111,23 @@ else if ($rate_limited)
 	  <div class='alert alert-danger'><h4>Error!</h4><?=$error?></div>
     <? endif ?>
 	
-  	<div class='well'>
-	  <h4>How do I get access?</h4>
-	  <div class='container collapsed'>
-	  <p>
-	  You need to enter the Bitraf premises, and log into the console on the P2K12 computer. Type <code>passwd door</code>, and create your personal password.
-	  </p>
+  	<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+	  <div class="panel panel-default">
+		<div class="panel-heading" role="tab" id="headingOne">
+		  <h4 class="panel-title">
+			<a data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+			  <h4><span class='glyphicon glyphicon-question-sign' style='margin-right: 15px;'></span>How do I get access?</h4>
+			</a>
+		  </h4>
+		</div>
+		<div id="collapseOne" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
+		  <div class="panel-body">
+			You need to enter the Bitraf premises, and log into the console on the P2K12 computer. Type <code>passwd door</code>, and create your personal password.
+		  </div>
+		</div>
 	  </div>
 	</div>
+
 	
     <form method=post action='<?=htmlentities($_SERVER['REQUEST_URI'], ENT_QUOTES, 'UTF-8')?>'>
       <input type=hidden name=action value=unlock>
@@ -137,7 +147,7 @@ else if ($rate_limited)
 	  </div>
 	</div>
 	
-	<div class='container' style='margin-top: 30px;'>
+	<div class='container' style='margin-top: 30px; margin-bottom: 200px;'>
     <button type='submit' class='btn btn-lg btn-success' style='padding: 20px 50px 20px 50px;' value='Unlock'>
 		<span class='glyphicon glyphicon-lock' style='margin-right: 0px;'></span>
 		Unlock
