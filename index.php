@@ -15,6 +15,8 @@ $ok = false;
 // Set to true if authentication is disallowed due to rate limiting.
 $rate_limited = false;
 
+$balance = 0;
+
 if (isset($_POST['action'])
     && isset($_POST['pin'])
     && isset($_POST['user'])
@@ -32,10 +34,12 @@ if (isset($_POST['action'])
     // Retrieve password hash and eligibility to unlock door remotely.
     $res = @pg_query_params(<<<SQL
 SELECT account, auth.data,
+       -(user_balances.balance) AS balance,
        (active_members.price > 0 OR active_members.flag != '') AS can_unlock
   FROM auth
   JOIN active_members USING (account)
   JOIN accounts ON accounts.id = account
+  JOIN user_balances ON user_balances.id = account
   WHERE (LOWER(accounts.name) = LOWER($1) OR LOWER(active_members.full_name) = LOWER($1))
     AND auth.realm = 'door'
   ORDER BY can_unlock DESC NULLS LAST
@@ -47,6 +51,7 @@ SQL
     if ($row)
     {
       $account = $row['account'];
+      $balance = $row['balance'];
 
       if ($row['can_unlock'] != 't')
       {
@@ -105,6 +110,9 @@ else if ($rate_limited)
 		<h4>Door is open!</h4>Welcome to Bitraf! 
 		<p>(Current time: <?=strftime('%H:%M:%S')?>)</p>
 		<!-- TODO: add SQL and PHP for counting <div>You are the 48th member here today.</div> -->
+	</div>
+	<div class='alert alert-info'>
+		<h4>P2K12</h4>Your current balance in P2K12 is <?=$balance?>.
 	</div>
   <? else: ?>
     <? if (isset($error)): ?>
