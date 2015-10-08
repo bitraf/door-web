@@ -52,7 +52,7 @@ SQL
       {
         $error = 'User not authorized to unlock door';
       }
-      else if (crypt($_POST['pin'], $row['data']) !== $row['data'])
+      else if (!hash_equals(crypt($_POST['pin'], $row['data']), $row['data']))
       {
         $error = 'Incorrect password';
       }
