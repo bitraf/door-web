@@ -1,6 +1,8 @@
 # door-web
 Web interface for door unlocking
 
+![Webinterface on mobile device](./doc/webinterface-mobile.png)
+
 Authenticates the user against the [p2k12](https://github.com/bitraf/p2k12) member database.
 
 Expects a shell script `bitraf-open-door.sh` to exist in `PATH` to actually open the door.
