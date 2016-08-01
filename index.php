@@ -173,4 +173,4 @@ else if ($rate_limited)
 flush();
 
 if ($ok)
-  system('/usr/local/bin/bitraf-door-open.sh '.escapeshellarg($user));
+  system('/usr/local/bin/bitraf-door-open.sh '.escapeshellarg($_POST['user']));
