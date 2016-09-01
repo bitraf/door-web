@@ -102,7 +102,7 @@ else if ($rate_limited)
   </head>
   <body>
   <div class='container' style='margin-bottom: 20px;'>
-    <img src='http://www.bitraf.no/images/bitraf.png' class='image-round'>
+    <img src='https://www.bitraf.no/images/bitraf.png' class='image-round'>
   </div>
   <? if ($ok): ?>
     <!-- <p style='font-weight: bold'>Door is open.  Welcome to Bitraf (<?=strftime('%H:%M:%S')?>).</p> -->
