@@ -1,4 +1,6 @@
-<?
+<?php
+// vim:ts=2:sw=2:sts=2:et:ai:cindent
+
 header('Content-Type: text/html; charset=UTF-8');
 
 // Require that HTTPS be used for the next year, to prevent SSL-stripping MITM 
@@ -104,7 +106,7 @@ else if ($rate_limited)
   <div class='container' style='margin-bottom: 20px;'>
     <img src='https://www.bitraf.no/images/bitraf.png' class='image-round'>
   </div>
-  <? if ($ok): ?>
+  <?php if ($ok): ?>
     <!-- <p style='font-weight: bold'>Door is open.  Welcome to Bitraf (<?=strftime('%H:%M:%S')?>).</p> -->
 	<div class='alert alert-success'>
 		<h4>Door is open!</h4>Welcome to Bitraf! 
@@ -114,10 +116,10 @@ else if ($rate_limited)
 	<div class='alert alert-info'>
 		<h4>P2K12</h4>Your current balance in P2K12 is <?=$balance?>.
 	</div>
-  <? else: ?>
-    <? if (isset($error)): ?>
+  <?php else: ?>
+    <?php if (isset($error)): ?>
 	  <div class='alert alert-danger'><h4>Error!</h4><?=$error?></div>
-    <? endif ?>
+    <?php endif ?>
 	
   	<div class="panel-group" id="accordion" role="tablist">
 	  <div class="panel panel-default">
@@ -163,11 +165,11 @@ else if ($rate_limited)
 	</div>
 	
     </form>
-  <? endif ?>
+  <?php endif ?>
    
   </body>
 </html>
-<?
+<?php
 // We flush the output buffers and perform the unlock operation after the page 
 // has rendered to prevent its slowness from stalling the web browser.
 flush();
