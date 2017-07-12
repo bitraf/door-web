@@ -188,7 +188,7 @@ else if ($rate_limited)
 flush();
 
 function unlock($door, $duration) {
-  $script = '/usr/local/bin/bitraf-door-open.sh';
+  $script = './bitraf-door-open.sh';
   $command = $script . ' ' . escapeshellarg($_POST['user']) .
                        ' ' . escapeshellarg($door) .
                        ' ' . escapeshellarg($duration) .
