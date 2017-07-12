@@ -13,3 +13,9 @@ p {
 input {
   margin-bottom: 10px;
 }
+
+.btn-lg {
+  width: 100%;
+  margin-bottom: 20px;
+  padding: 20px 50px 20px 50px;
+}
