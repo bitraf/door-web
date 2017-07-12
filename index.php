@@ -27,6 +27,11 @@ if (isset($_POST['action'])
   require_once('db-connect-string.php');
   pg_connect($db_connect_string);
 
+  if (!isset($_POST['door'])) {
+    // Default to old behavior
+    $_POST['door'] = 'frontdoor-2floor';
+  }
+
   // Per-IP failure rate limit.
   $res = pg_query_params("SELECT COUNT(*) FROM auth_log WHERE host = $1 AND account IS NULL AND date > NOW() - INTERVAL '1 hour'", array($_SERVER['REMOTE_ADDR']));
   $fail_count = pg_fetch_result($res, 0, 0);
@@ -141,6 +146,7 @@ else if ($rate_limited)
 	
     <form method=post action='<?=htmlentities($_SERVER['REQUEST_URI'], ENT_QUOTES, 'UTF-8')?>'>
       <input type=hidden name=action value=unlock>
+      <input type=hidden name=door value='invalid'>
 	  
 	  <h4>Authentication</h4>  
 	  <div class='form-group'>	  
@@ -158,10 +164,17 @@ else if ($rate_limited)
 	</div>
 	
 	<div class='container' style='margin-top: 30px; margin-bottom: 200px;'>
-    <button type='submit' class='btn btn-lg btn-success' style='padding: 20px 50px 20px 50px;' value='Unlock'>
+
+    <button type='submit' class='btn btn-lg btn-success' value='frontdoor-2floor' onclick="this.form.door.value=this.value">
 		<span class='glyphicon glyphicon-lock' style='margin-right: 0px;'></span>
-		Unlock
-	</button>
+    Frontdoor & lab
+	  </button>
+
+    <button type='submit' class='btn btn-lg btn-success' value='4floor' onclick="this.form.door.value=this.value">
+		<span class='glyphicon glyphicon-lock' style='margin-right: 0px;'></span>
+		4th floor
+	  </button>
+
 	</div>
 	
     </form>
@@ -174,5 +187,20 @@ else if ($rate_limited)
 // has rendered to prevent its slowness from stalling the web browser.
 flush();
 
-if ($ok)
-  system('/usr/local/bin/bitraf-door-open.sh '.escapeshellarg($_POST['user']));
+function unlock($door, $duration) {
+  $script = './bitraf-door-open.sh';
+  $command = $script . ' ' . escapeshellarg($_POST['user']) .
+                       ' ' . escapeshellarg($door) .
+                       ' ' . escapeshellarg($duration) .
+                       ' 2>&1';
+  exec($command, $output, $retval);
+}
+
+if ($ok) {
+  if ($_POST['door'] === 'frontdoor-2floor') {
+    unlock('frontdoor', 10);
+    unlock('2floor', 60);
+  } else {
+    unlock($_POST['door'], 10);
+  }
+}
