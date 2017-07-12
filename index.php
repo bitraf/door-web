@@ -170,6 +170,11 @@ else if ($rate_limited)
     Frontdoor & lab
 	  </button>
 
+    <button type='submit' class='btn btn-lg btn-success' value='3office-3workshop' onclick="this.form.door.value=this.value">
+		<span class='glyphicon glyphicon-lock' style='margin-right: 0px;'></span>
+		3rd floor
+	  </button>
+
     <button type='submit' class='btn btn-lg btn-success' value='4floor' onclick="this.form.door.value=this.value">
 		<span class='glyphicon glyphicon-lock' style='margin-right: 0px;'></span>
 		4th floor
@@ -200,6 +205,9 @@ if ($ok) {
   if ($_POST['door'] === 'frontdoor-2floor') {
     unlock('frontdoor', 10);
     unlock('2floor', 60);
+  if ($_POST['door'] === '3office-3workshop') {
+    unlock('3office', 20);
+    unlock('3workshop', 20);
   } else {
     unlock($_POST['door'], 10);
   }

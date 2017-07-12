@@ -9,6 +9,7 @@ case "$DOOR" in
   frontdoor) ;;
   2floor) ;;
   4floor) ;;
+  3workshop) ;;
   3office) ;;
   3floor) ;;
   *)
