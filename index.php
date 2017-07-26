@@ -205,7 +205,7 @@ if ($ok) {
   if ($_POST['door'] === 'frontdoor-2floor') {
     unlock('frontdoor', 10);
     unlock('2floor', 60);
-  if ($_POST['door'] === '3office-3workshop') {
+  } else if ($_POST['door'] === '3office-3workshop') {
     unlock('3office', 20);
     unlock('3workshop', 20);
   } else {
